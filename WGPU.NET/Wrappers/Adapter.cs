@@ -51,7 +51,7 @@ namespace WGPU.NET
         {
             limits = new SupportedLimits();
 
-            return AdapterGetLimits(Impl, ref limits);
+            return AdapterGetLimits(Impl, ref limits) == 1;
         }
 
         public void GetProperties(out AdapterProperties properties)
@@ -61,7 +61,7 @@ namespace WGPU.NET
             AdapterGetProperties(Impl, ref properties);
         }
 
-        public bool HasFeature(FeatureName feature) => AdapterHasFeature(Impl, feature);
+        public bool HasFeature(FeatureName feature) => AdapterHasFeature(Impl, feature) == 1;
 
         public void RequestDevice(RequestDeviceCallback callback, string label, NativeFeature[] nativeFeatures, QueueDescriptor defaultQueue = default, 
             Limits? limits = null, RequiredLimitsExtras? limitsExtras = null, DeviceExtras? deviceExtras = null, DeviceLostCallback deviceLostCallback = null)
@@ -99,7 +99,7 @@ namespace WGPU.NET
                         {
                             defaultQueue = defaultQueue,
                             requiredLimits = limits != null ? new IntPtr(&requiredLimits) : IntPtr.Zero,
-                            requiredFeaturesCount = (uint)nativeFeatures.Length,
+                            requiredFeatureCount = (ulong)nativeFeatures.LongLength,
                             requiredFeatures = new IntPtr(requiredFeatures),
                             label = label,
                             deviceLostCallback = (reason, message, _) => deviceLostCallback?.Invoke(reason, message),

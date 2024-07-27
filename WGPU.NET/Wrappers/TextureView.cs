@@ -40,6 +40,10 @@ namespace WGPU.NET
             Impl = impl;
             Texture = texture;
         }
+        
+        public static TextureView FromHandle(IntPtr ptr) => new TextureView(new TextureViewImpl(ptr), null);
+
+        public IntPtr GetTextureViewHandle() => new IntPtr(_impl.Handle.ToInt64());
 
         internal static TextureView Create(TextureViewImpl impl, Texture texture)
         {

@@ -223,31 +223,6 @@ namespace WGPU.NET
     public delegate void CompilationInfoCallback(CompilationInfoRequestStatus status,
         ReadOnlySpan<CompilationMessage> messages);
 
-    public class SwapChain : IDisposable
-    {
-        private SwapChainImpl _impl;
-
-        internal SwapChain(SwapChainImpl impl)
-        {
-            if (impl.Handle == IntPtr.Zero)
-                throw new ResourceCreationError(nameof(SwapChain));
-            
-            _impl = impl;
-        }
-
-        public TextureView GetCurrentTextureView() => TextureView.CreateUntracked(SwapChainGetCurrentTextureView(_impl));
-
-        public void Present()
-            => SwapChainPresent(_impl);
-
-        public void Dispose()
-        {
-            TextureView.Forget(SwapChainGetCurrentTextureView(_impl));
-            SwapChainRelease(_impl);
-            _impl = default;
-        }
-    }
-
     public delegate void QueueWorkDoneCallback(QueueWorkDoneStatus status); 
 
     public class CommandBuffer : IDisposable
