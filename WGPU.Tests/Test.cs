@@ -1,12 +1,10 @@
 ﻿using Silk.NET.GLFW;
-using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Threading;
 using WGPU.NET;
 using Image = SixLabors.ImageSharp.Image;
 
