@@ -2690,6 +2690,14 @@ namespace WGPU.NET
             public ulong targetCount;
             
             public IntPtr targets;
+
+            public FragmentState(ShaderModuleImpl module, string entryPoint, IntPtr targets, ulong targetCount) : this()
+            {
+                this.module = module;
+                this.entryPoint = entryPoint;
+                this.targets = targets;
+                this.targetCount = targetCount;
+            }
         }
         
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
@@ -2754,7 +2762,7 @@ namespace WGPU.NET
         public partial struct RequiredLimitsExtras
         {
             public Wgpu.ChainedStruct chain;
-            
+            public uint maxPushConstantSize;
             public Wgpu.NativeLimits limits;
         }
         

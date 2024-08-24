@@ -28,6 +28,10 @@ namespace WGPU.NET
             Impl = impl;
         }
 
+        public IntPtr GetBindGroupHandle() => _impl.Handle;
+        
+        public static BindGroup FromHandle(IntPtr handle) => new BindGroup(new BindGroupImpl(handle));
+        
         public void Dispose()
         {
             BindGroupRelease(Impl);

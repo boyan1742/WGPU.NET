@@ -146,7 +146,7 @@ namespace WGPU.NET
             AddStruct(new Wgpu.RequiredLimitsExtras()
             {
                 chain = new Wgpu.ChainedStruct { sType = (Wgpu.SType)Wgpu.NativeSType.STypeRequiredLimitsExtras },
-                //TODO: check what this should do. If useless/unused -> remove.  maxPushConstantSize = maxPushConstantSize
+                maxPushConstantSize = maxPushConstantSize
             });
 
             return this;
