@@ -6,6 +6,8 @@ namespace WGPU.NET
     {
         public IntPtr nextInChain;
 
+        public uint usages;
+        
         public Wgpu.TextureFormat[] formats;
 
         public Wgpu.PresentMode[] presentModes;

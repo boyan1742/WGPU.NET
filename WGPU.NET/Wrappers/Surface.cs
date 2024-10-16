@@ -16,9 +16,7 @@ namespace WGPU.NET
         }
 
         public TextureFormat GetPreferredFormat(Adapter adapter)
-        {
-            return SurfaceGetPreferredFormat(Impl, adapter.Impl);
-        }
+            => GetCapabilities(adapter).formats[0];
 
         public SurfaceTexture GetCurrentTexture()
         {
@@ -33,7 +31,8 @@ namespace WGPU.NET
                 format = TextureGetFormat(txt.texture),
                 size = new Extent3D
                 {
-                    height = TextureGetHeight(txt.texture), width = TextureGetWidth(txt.texture),
+                    height = TextureGetHeight(txt.texture),
+                    width = TextureGetWidth(txt.texture),
                     depthOrArrayLayers = TextureGetDepthOrArrayLayers(txt.texture)
                 },
                 usage = TextureGetUsage(txt.texture),
@@ -44,16 +43,16 @@ namespace WGPU.NET
             };
 
             SurfaceTexture texture = new SurfaceTexture
-            {
-                texture = new Texture(txt.texture, desc),
-                status = txt.status,
-                suboptimal = txt.suboptimal
-            };
+            (
+                new Texture(txt.texture, desc),
+                txt.suboptimal,
+                txt.status
+            );
 
             return texture;
         }
 
-        public TextureView GetCurrentTextureView() => GetCurrentTexture().texture.CreateTextureView();
+        public TextureView GetCurrentTextureView() => GetCurrentTexture().GetTextureView();
 
         public void Configure(Device device, SurfaceConfiguration config)
         {
@@ -61,7 +60,6 @@ namespace WGPU.NET
             {
                 device = device.Impl,
                 presentMode = config.presentMode,
-                viewFormatCount = config.viewFormats is { } ? (ulong)config.viewFormats.LongLength : 0,
                 nextInChain = config.nextInChain,
                 format = config.format,
                 height = config.height,
@@ -70,11 +68,14 @@ namespace WGPU.NET
                 alphaMode = config.alphaMode
             };
 
-            if (config.viewFormats is { })
+            if (config.viewFormats is { } && config.viewFormats.Length > 0)
                 unsafe
                 {
                     fixed (TextureFormat* tf = &config.viewFormats[0])
+                    {
                         surfaceConfiguration.viewFormats = new IntPtr(tf);
+                        surfaceConfiguration.viewFormatCount = (ulong)config.viewFormats.Length;
+                    }
                 }
 
             SurfaceConfigure(Impl, surfaceConfiguration);
@@ -92,6 +93,7 @@ namespace WGPU.NET
             SurfaceCapabilities caps = new SurfaceCapabilities
             {
                 nextInChain = capabilities.nextInChain,
+                usages = capabilities.usages,
                 formats = new TextureFormat[capabilities.formatCount],
                 presentModes = new PresentMode[capabilities.presentModeCount],
                 alphaModes = new CompositeAlphaMode[capabilities.alphaModeCount]
@@ -117,11 +119,15 @@ namespace WGPU.NET
             Array.Copy(presentModesTemp, caps.presentModes, caps.presentModes.Length);
             Array.Copy(alphaModesTemp, caps.alphaModes, caps.alphaModes.Length);
 
-            SurfaceCapabilitiesFreeMembers(capabilities); 
-            
+            formatsTemp = null;
+            presentModesTemp = null;
+            alphaModesTemp = null;
+
+            SurfaceCapabilitiesFreeMembers(capabilities);
+
             return caps;
         }
-        
+
         public void Dispose()
         {
             SurfaceRelease(Impl);

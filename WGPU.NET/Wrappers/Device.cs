@@ -290,8 +290,9 @@ namespace WGPU.NET
         private static RenderPipelineDescriptor CreateRenderPipelineDescriptor(string label, PipelineLayout layout,
             VertexState vertexState,
             PrimitiveState primitiveState, MultisampleState multisampleState, DepthStencilState? depthStencilState,
-            FragmentState? fragmentState) =>
-            new RenderPipelineDescriptor
+            FragmentState? fragmentState)
+        {
+            return new RenderPipelineDescriptor
             {
                 label = label,
                 layout = layout.Impl,
@@ -315,11 +316,13 @@ namespace WGPU.NET
                 multisample = multisampleState,
                 fragment = fragmentState == null
                     ? IntPtr.Zero
-                    : Util.AllocHStruct(new Wgpu.FragmentState(module: fragmentState.Value.Module.Impl,
-                        entryPoint: fragmentState.Value.EntryPoint, fragmentState.Value.colorTargets.Length == 0
+                    : Util.AllocHStruct(new Wgpu.FragmentState(
+                        module: fragmentState.Value.Module.Impl,
+                        entryPoint: fragmentState.Value.EntryPoint,
+                        targets: fragmentState.Value.colorTargets.Length == 0
                             ? IntPtr.Zero
-                            : Util.AllocHArray(fragmentState.Value.colorTargets.Length, fragmentState.Value.colorTargets.Select(
-                                x =>
+                            : Util.AllocHArray(fragmentState.Value.colorTargets.Length, 
+                                fragmentState.Value.colorTargets.Select(x =>
                                     new Wgpu.ColorTargetState
                                     {
                                         format = x.Format,
@@ -328,6 +331,7 @@ namespace WGPU.NET
                                     })),
                         targetCount: (uint)fragmentState.Value.colorTargets.Length))
             };
+        }
 
         private static void FreeRenderPipelineDescriptor(RenderPipelineDescriptor descriptor)
         {
@@ -458,15 +462,16 @@ namespace WGPU.NET
         private static readonly List<Wgpu.ErrorCallback> s_errorCallbacks =
             new List<Wgpu.ErrorCallback>();
 
+        [Obsolete("Set this callback when creating the device!", true)]
         public void SetUncapturedErrorCallback(ErrorCallback callback)
         {
-            Wgpu.ErrorCallback errorCallback = (t, m, _) => callback(t, m);
+            /* Wgpu.ErrorCallback errorCallback = (t, m, _) => callback(t, m);
 
-            s_errorCallbacks.Add(errorCallback);
+             s_errorCallbacks.Add(errorCallback);
 
-            DeviceSetUncapturedErrorCallback(Impl,
-                errorCallback,
-                IntPtr.Zero);
+             DeviceSetUncapturedErrorCallback(Impl,
+                 errorCallback,
+                 IntPtr.Zero);*/
         }
 
         public void Dispose()

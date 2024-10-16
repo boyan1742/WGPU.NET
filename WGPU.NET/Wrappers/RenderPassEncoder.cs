@@ -34,7 +34,11 @@ namespace WGPU.NET
 
         public void DrawIndirect(Buffer indirectBuffer, ulong indirectOffset)
             => RenderPassEncoderDrawIndirect(_impl, indirectBuffer.Impl, indirectOffset);
-
+        
+        /// <summary>
+        /// Ends the usage of this Render Pass Encoder.
+        /// </summary>
+        /// <remarks>You should call <see cref="Dispose"/> after calling this method. <br/>Credit: https://github.com/gfx-rs/wgpu-native/issues/412</remarks>
         public void End() => RenderPassEncoderEnd(_impl);
 
         public void EndOcclusionQuery() => RenderPassEncoderEndOcclusionQuery(_impl);

@@ -54,17 +54,18 @@ namespace WGPU.NET
             return AdapterGetLimits(Impl, ref limits) == 1;
         }
 
-        public void GetProperties(out AdapterProperties properties)
+        public void GetProperties(out AdapterInfo properties)
         {
-            properties = new AdapterProperties();
-
-            AdapterGetProperties(Impl, ref properties);
+            AdapterInfo info = new AdapterInfo();
+            AdapterGetInfo(Impl, ref info);
+            properties = info;
         }
 
         public bool HasFeature(FeatureName feature) => AdapterHasFeature(Impl, feature) == 1;
 
         public void RequestDevice(RequestDeviceCallback callback, string label, NativeFeature[] nativeFeatures, QueueDescriptor defaultQueue = default, 
-            Limits? limits = null, RequiredLimitsExtras? limitsExtras = null, DeviceExtras? deviceExtras = null, DeviceLostCallback deviceLostCallback = null)
+            Limits? limits = null, RequiredLimitsExtras? limitsExtras = null, DeviceExtras? deviceExtras = null, DeviceLostCallback deviceLostCallback = null, 
+            UncapturedErrorCallbackInfo? uncapturedErrorCallback = null)
         {
             Wgpu.RequiredLimits requiredLimits = default;
             WgpuStructChain limitsExtrasChain = null;
@@ -103,7 +104,8 @@ namespace WGPU.NET
                             requiredFeatures = new IntPtr(requiredFeatures),
                             label = label,
                             deviceLostCallback = (reason, message, _) => deviceLostCallback?.Invoke(reason, message),
-                            nextInChain = deviceExtras==null ? IntPtr.Zero : deviceExtrasChain.GetPointer()
+                            nextInChain = deviceExtras==null ? IntPtr.Zero : deviceExtrasChain.GetPointer(),
+                            uncapturedErrorCallbackInfo = uncapturedErrorCallback ?? new UncapturedErrorCallbackInfo()
                         }, 
                         (s,d,m,_) => callback(s,new Device(d),m), IntPtr.Zero);
                 }

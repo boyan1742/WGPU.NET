@@ -141,12 +141,16 @@ namespace WGPU.NET
             return this;
         }
 
-        public WgpuStructChain AddRequiredLimitsExtras(uint maxPushConstantSize = default)
+        public WgpuStructChain AddRequiredLimitsExtras(uint maxPushConstantSize = default, uint maxNonSamplerBindings = default)
         {
             AddStruct(new Wgpu.RequiredLimitsExtras()
             {
                 chain = new Wgpu.ChainedStruct { sType = (Wgpu.SType)Wgpu.NativeSType.STypeRequiredLimitsExtras },
-                maxPushConstantSize = maxPushConstantSize
+                limits = new Wgpu.NativeLimits()
+                {
+                    maxPushConstantSize = maxPushConstantSize,
+                    maxNonSamplerBindings = maxNonSamplerBindings
+                }
             });
 
             return this;

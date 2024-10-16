@@ -32,7 +32,7 @@ namespace WGPU.Tests
             public Matrix4x4 Transform;
         }
 
-        public static void ErrorCallback(Wgpu.ErrorType type, string message)
+        public static void ErrorCallback(Wgpu.ErrorType type, string message, IntPtr userdata)
         {
             var _message = message.Replace("\\r\\n", "\n");
 
@@ -89,7 +89,7 @@ namespace WGPU.Tests
 
             instance.RequestAdapter(surface, default, default, (s, a, m) => adapter = a);
 
-            adapter.GetProperties(out Wgpu.AdapterProperties properties);
+            adapter.GetProperties(out Wgpu.AdapterInfo properties);
 
             adapter.GetLimits(out var supportedLimits);
 
@@ -98,13 +98,13 @@ namespace WGPU.Tests
             adapter.RequestDevice((s, d, m) => device = d,
                 limits: supportedLimits.limits,
                 label: "Device",
-                nativeFeatures: Array.Empty<Wgpu.NativeFeature>()
+                nativeFeatures: Array.Empty<Wgpu.NativeFeature>(),
+                uncapturedErrorCallback: new Wgpu.UncapturedErrorCallbackInfo()
+                {
+                    callback = ErrorCallback
+                }
             );
-
-
-            device.SetUncapturedErrorCallback(ErrorCallback);
-
-
+            
             Span<Vertex> vertices = new Vertex[]
             {
                 new Vertex(new (-1, -1, 0), new (1, 1, 0, 1), new (-.2f, 1.0f)),
@@ -498,6 +498,7 @@ namespace WGPU.Tests
                 renderPass.SetVertexBuffer(0, vertexBuffer, 0, (ulong)(vertices.Length * sizeof(Vertex)));
                 renderPass.Draw(3, 1, 0, 0);
                 renderPass.End();
+                renderPass.Dispose();
 
                 nextTexture.Dispose();
 
@@ -506,8 +507,8 @@ namespace WGPU.Tests
                 uniformBufferSpan[0] = uniformBufferData;
 
                 queue.WriteBuffer<UniformBuffer>(uniformBuffer, 0, uniformBufferSpan);
-
-                var commandBuffer = encoder.Finish(null);
+                
+                var commandBuffer = encoder.Finish("");
 
                 queue.Submit(new CommandBuffer[]
                 {
